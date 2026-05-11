@@ -11,8 +11,8 @@ const DATA = {
       "zh": "顧客旅程與買方人物誌"
     },
     "courseLine": {
-      "en": "Visual bilingual learning infrastructure",
-      "zh": "視覺化雙語學習架構"
+      "en": "Digital marketing study guide",
+      "zh": "數位行銷學習指南"
     },
     "thesis": {
       "en": "SmartBug defines the customer. SilverTech maps that customer’s experience. MKTG 6222 turns both into real digital marketing execution across Instagram, blog, Meta Ads, Google Ads, and team recommendations.",
@@ -1385,8 +1385,8 @@ const DATA = {
             "zh": "Social media project 與 digital audit"
           },
           "detail": {
-            "en": "Report campaign learning and team audit progress.",
-            "zh": "回報 campaign learning 與團隊 audit 進度。"
+            "en": "Deliver social media findings and the team digital audit.",
+            "zh": "提交 social media findings 與團隊 digital audit。"
           }
         },
         {
@@ -1477,7 +1477,7 @@ const DATA = {
 };
 
 const MODE_ORDER = ["en", "zh", "bi"];
-const MODE_LABEL = { en: "EN", zh: "中文", bi: "EN｜中文" };
+const MODE_LABEL = { en: "EN", zh: "中文", bi: "雙語" };
 
 function t(value, mode) {
   if (!value) return "";
@@ -1499,10 +1499,20 @@ function DualText({ value, mode, className = "" }) {
   return <span className={className}>{t(value, mode)}</span>;
 }
 
+function InlineText({ en, zh, mode, className = "" }) {
+  return <DualText value={{ en, zh }} mode={mode} className={className} />;
+}
+
+function bilingualLabel(en, zh, mode) {
+  if (mode === "zh") return zh;
+  if (mode === "bi") return `${en}｜${zh}`;
+  return en;
+}
+
 function Tag({ tag, mode }) {
   const item = DATA.sourceLegend.find((x) => x.tag === tag);
   if (!item) return null;
-  return <span className="source-tag">{mode === "zh" ? item.zhTag : item.tag}</span>;
+  return <span className="source-tag"><DualText value={{ en: item.tag, zh: item.zhTag }} mode={mode} /></span>;
 }
 
 function Icon({ name }) {
@@ -1529,17 +1539,17 @@ function Header({ mode, setMode, query, setQuery }) {
           <p className="hero-thesis"><DualText value={DATA.meta.thesis} mode={mode} /></p>
         </div>
         <aside className="hero-card">
-          <div className="hero-card-top"><Icon name="layers" /><span>Class 02 System</span></div>
-          <div className="metric-row"><strong>3</strong><span>{mode === "zh" ? "來源層" : "Source layers"}</span></div>
-          <div className="metric-row"><strong>4</strong><span>{mode === "zh" ? "旅程階段" : "Journey stages"}</span></div>
-          <div className="metric-row"><strong>6</strong><span>{mode === "zh" ? "訪談類別" : "Interview categories"}</span></div>
-          <div className="metric-row"><strong>5+</strong><span>{mode === "zh" ? "作業輸出" : "Project outputs"}</span></div>
+          <div className="hero-card-top"><Icon name="layers" /><span><InlineText en="Study map" zh="學習地圖" mode={mode} /></span></div>
+          <div className="metric-row"><strong>3</strong><span><InlineText en="Source layers" zh="來源層" mode={mode} /></span></div>
+          <div className="metric-row"><strong>4</strong><span><InlineText en="Journey stages" zh="旅程階段" mode={mode} /></span></div>
+          <div className="metric-row"><strong>6</strong><span><InlineText en="Interview categories" zh="訪談類別" mode={mode} /></span></div>
+          <div className="metric-row"><strong>5+</strong><span><InlineText en="Project outputs" zh="作業輸出" mode={mode} /></span></div>
         </aside>
       </div>
       <div className="control-strip" aria-label="reader controls">
         <label className="search-box">
-          <span>{mode === "zh" ? "搜尋章節" : "Search sections"}</span>
-          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={mode === "zh" ? "例如 persona、Meta、KPI" : "e.g., persona, Meta, KPI"} />
+          <span><InlineText en="Search sections" zh="搜尋章節" mode={mode} /></span>
+          <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder={bilingualLabel("e.g., persona, Meta, KPI", "例如 persona、Meta、KPI", mode)} />
         </label>
         <div className="mode-pills">
           {MODE_ORDER.map((item) => (
@@ -1552,10 +1562,19 @@ function Header({ mode, setMode, query, setQuery }) {
 }
 
 function Nav({ sections, mode }) {
+  const summary = [
+    { en: "Persona defines who the strategy serves.", zh: "Persona 定義策略服務誰。" },
+    { en: "Journey mapping shows how the experience unfolds.", zh: "Journey map 說明體驗如何展開。" },
+    { en: "Funnel, KPI, and A/B testing turn the map into execution.", zh: "Funnel、KPI 與 A/B testing 把地圖轉成執行。" },
+  ];
   return (
     <nav className="side-nav" aria-label="section navigation">
-      <a href="#top" className="nav-title">Class 02</a>
-      {sections.map((s) => <a key={s.id} href={`#${s.id}`}><DualText value={s.title} mode={mode} /></a>)}
+      <a href="#top" className="nav-title"><InlineText en="Class 02" zh="第二堂課" mode={mode} /></a>
+      <div className="sticky-summary" aria-label="summary">
+        <strong><InlineText en="Core takeaway" zh="核心重點" mode={mode} /></strong>
+        {summary.map((item) => <p key={item.en}><DualText value={item} mode={mode} /></p>)}
+      </div>
+      <div className="nav-links">{sections.map((s) => <a key={s.id} href={`#${s.id}`}><DualText value={s.title} mode={mode} /></a>)}</div>
     </nav>
   );
 }
@@ -1588,8 +1607,8 @@ function LogicView({ section, mode }) {
 function LegendView({ mode }) {
   return <div className="legend-grid">{DATA.sourceLegend.map((item) => (
     <div className="legend-card" key={item.tag}>
-      <span className="source-tag">{mode === "zh" ? item.zhTag : item.tag}</span>
-      <p>{mode === "zh" ? item.zh : item.en}</p>
+      <span className="source-tag"><DualText value={{ en: item.tag, zh: item.zhTag }} mode={mode} /></span>
+      <p><DualText value={{ en: item.en, zh: item.zh }} mode={mode} /></p>
     </div>
   ))}</div>;
 }
@@ -1600,8 +1619,8 @@ function CxUxView({ section, mode }) {
       <div className="venn-card">
         <div className="cx-circle"><span>CX</span><div className="ux-circle"><span>UX</span></div></div>
         <div className="venn-notes">
-          <p><strong>CX</strong> {mode === "zh" ? "包含 service、advertising、brand reputation、sales process、pricing fairness、delivery 與 UX。" : "includes service, advertising, brand reputation, sales process, pricing fairness, delivery, and UX."}</p>
-          <p><strong>UX</strong> {mode === "zh" ? "包含 usability、interaction design、visual design、information architecture、content strategy 與 user research。" : "includes usability, interaction design, visual design, information architecture, content strategy, and user research."}</p>
+          <p><strong>CX</strong> <InlineText en="includes service, advertising, brand reputation, sales process, pricing fairness, delivery, and UX." zh="包含 service、advertising、brand reputation、sales process、pricing fairness、delivery 與 UX。" mode={mode} /></p>
+          <p><strong>UX</strong> <InlineText en="includes usability, interaction design, visual design, information architecture, content strategy, and user research." zh="包含 usability、interaction design、visual design、information architecture、content strategy 與 user research。" mode={mode} /></p>
         </div>
       </div>
       <div className="case-table">{section.cases.map((c, idx) => (
@@ -1635,19 +1654,19 @@ function StagesView({ section, mode }) {
           <h4><DualText value={s.stage} mode={mode} /></h4>
           <p className="mindset"><DualText value={s.mindset} mode={mode} /></p>
           <dl>
-            <dt>{mode === "zh" ? "內容" : "Content"}</dt><dd><DualText value={s.content} mode={mode} /></dd>
-            <dt>{mode === "zh" ? "情緒" : "Emotion"}</dt><dd><DualText value={s.emotion} mode={mode} /></dd>
+            <dt><InlineText en="Content" zh="內容" mode={mode} /></dt><dd><DualText value={s.content} mode={mode} /></dd>
+            <dt><InlineText en="Emotion" zh="情緒" mode={mode} /></dt><dd><DualText value={s.emotion} mode={mode} /></dd>
             <dt>KPI</dt><dd><DualText value={s.kpi} mode={mode} /></dd>
           </dl>
         </div>
       ))}</div>
-      <div className="nonlinear-note"><Icon name="spark" /><p>{mode === "zh" ? "閱讀重點：四階段只是為了方便使用的表示方式。真實顧客可能跳過階段，也可能重新開始旅程。" : "Reading point: the four stages are a usability device. Real customers may skip stages or restart the journey."}</p></div>
+      <div className="nonlinear-note"><Icon name="spark" /><p><InlineText en="Reading point: the four stages are a usability device. Real customers may skip stages or restart the journey." zh="閱讀重點：四階段只是為了方便使用的表示方式。真實顧客可能跳過階段，也可能重新開始旅程。" mode={mode} /></p></div>
     </div>
   );
 }
 
 function EmotionView({ mode }) {
-  const labels = mode === "zh" ? ["困惑", "謹慎", "懷疑", "安心", "忠誠"] : ["confused", "cautious", "skeptical", "reassured", "loyal"];
+  const labels = mode === "zh" ? ["困惑", "謹慎", "懷疑", "安心", "忠誠"] : mode === "bi" ? ["confused｜困惑", "cautious｜謹慎", "skeptical｜懷疑", "reassured｜安心", "loyal｜忠誠"] : ["confused", "cautious", "skeptical", "reassured", "loyal"];
   return (
     <div className="emotion-panel">
       <svg viewBox="0 0 720 220" role="img" aria-label="emotion curve" className="emotion-svg">
@@ -1656,9 +1675,9 @@ function EmotionView({ mode }) {
         {[40, 190, 340, 490, 640].map((x, idx) => <circle key={x} cx={x} cy={idx === 0 ? 160 : idx === 1 ? 118 : idx === 2 ? 128 : idx === 3 ? 78 : 97} r="6" />)}
       </svg>
       <div className="tone-grid">
-        <div><strong>{mode === "zh" ? "緊張顧客" : "Nervous customer"}</strong><p>{mode === "zh" ? "需要 reassurance，先降低風險感。" : "Needs reassurance before persuasion."}</p></div>
-        <div><strong>{mode === "zh" ? "挫折顧客" : "Frustrated customer"}</strong><p>{mode === "zh" ? "需要 clarity 與速度，不需要華麗文案。" : "Needs clarity and speed, not decorative copy."}</p></div>
-        <div><strong>{mode === "zh" ? "興奮顧客" : "Excited customer"}</strong><p>{mode === "zh" ? "可以承受較 aspirational 的訊息。" : "Can accept more aspirational messaging."}</p></div>
+        <div><strong><InlineText en="Nervous customer" zh="緊張顧客" mode={mode} /></strong><p><InlineText en="Needs reassurance before persuasion." zh="需要 reassurance，先降低風險感。" mode={mode} /></p></div>
+        <div><strong><InlineText en="Frustrated customer" zh="挫折顧客" mode={mode} /></strong><p><InlineText en="Needs clarity and speed, not decorative copy." zh="需要 clarity 與速度，不需要華麗文案。" mode={mode} /></p></div>
+        <div><strong><InlineText en="Excited customer" zh="興奮顧客" mode={mode} /></strong><p><InlineText en="Can accept more aspirational messaging." zh="可以承受較 aspirational 的訊息。" mode={mode} /></p></div>
       </div>
     </div>
   );
@@ -1667,9 +1686,9 @@ function EmotionView({ mode }) {
 function OnstageView({ section, mode }) {
   return <div className="onstage-grid">{section.pairs.map((p, idx) => (
     <div className="onstage-row" key={idx}>
-      <div className="onstage-box"><span>Onstage</span><strong><DualText value={p.on} mode={mode} /></strong></div>
+      <div className="onstage-box"><span><InlineText en="Onstage" zh="前臺" mode={mode} /></span><strong><DualText value={p.on} mode={mode} /></strong></div>
       <div className="arrow">→</div>
-      <div className="offstage-box"><span>Offstage</span><strong><DualText value={p.off} mode={mode} /></strong></div>
+      <div className="offstage-box"><span><InlineText en="Offstage" zh="後臺" mode={mode} /></span><strong><DualText value={p.off} mode={mode} /></strong></div>
     </div>
   ))}</div>;
 }
@@ -1679,8 +1698,8 @@ function PersonaView({ section, mode }) {
     <div className="persona-layout">
       <div className="persona-core">
         <Icon name="user" />
-        <h4>{mode === "zh" ? "正確定義" : "Correct definition"}</h4>
-        <p>{mode === "zh" ? "以研究與真實顧客訪談建立的 target customer representation。它應揭露行為、動機、偏好與反對理由。" : "A target customer representation based on research and real customer interviews. It should reveal behavior, motivation, preferences, and objections."}</p>
+        <h4><InlineText en="Correct definition" zh="正確定義" mode={mode} /></h4>
+        <p><InlineText en="A target customer representation based on research and real customer interviews. It should reveal behavior, motivation, preferences, and objections." zh="以研究與真實顧客訪談建立的 target customer representation。它應揭露行為、動機、偏好與反對理由。" mode={mode} /></p>
       </div>
       <div className="not-grid">{section.notPersona.map((x) => (
         <div className="not-card" key={x.bad.en}>
@@ -1703,7 +1722,7 @@ function ProcessView({ section, mode }) {
         </div>
       ))}</div>
       <div className="table-wrap">
-        <table><thead><tr><th>{mode === "zh" ? "類別" : "Category"}</th><th>{mode === "zh" ? "重點" : "Focus"}</th></tr></thead><tbody>
+        <table><thead><tr><th><InlineText en="Category" zh="類別" mode={mode} /></th><th><InlineText en="Focus" zh="重點" mode={mode} /></th></tr></thead><tbody>
           {section.interviewCategories.map((row) => <tr key={row.category.en}><td><DualText value={row.category} mode={mode} /></td><td><DualText value={row.focus} mode={mode} /></td></tr>)}
         </tbody></table>
       </div>
@@ -1713,8 +1732,8 @@ function ProcessView({ section, mode }) {
 
 function ProfileView({ section, mode }) {
   return <div className="split-two">
-    <div className="table-wrap"><h4>{mode === "zh" ? "Profile 四要素" : "Four profile elements"}</h4><table><tbody>{section.profileFields.map((row) => <tr key={row.field.en}><td><strong><DualText value={row.field} mode={mode} /></strong></td><td><DualText value={row.detail} mode={mode} /></td></tr>)}</tbody></table></div>
-    <div className="advanced-list"><h4>{mode === "zh" ? "進階 persona 類型" : "Advanced persona types"}</h4>{section.advanced.map((row) => <div key={row.type.en}><strong><DualText value={row.type} mode={mode} /></strong><p><DualText value={row.use} mode={mode} /></p></div>)}</div>
+    <div className="table-wrap"><h4><InlineText en="Four profile elements" zh="Profile 四要素" mode={mode} /></h4><table><tbody>{section.profileFields.map((row) => <tr key={row.field.en}><td><strong><DualText value={row.field} mode={mode} /></strong></td><td><DualText value={row.detail} mode={mode} /></td></tr>)}</tbody></table></div>
+    <div className="advanced-list"><h4><InlineText en="Advanced persona types" zh="進階 persona 類型" mode={mode} /></h4>{section.advanced.map((row) => <div key={row.type.en}><strong><DualText value={row.type} mode={mode} /></strong><p><DualText value={row.use} mode={mode} /></p></div>)}</div>
   </div>;
 }
 
@@ -1733,7 +1752,7 @@ function ProjectsView({ section, mode }) {
       <h4><DualText value={project.name} mode={mode} /></h4>
       <p><DualText value={project.status} mode={mode} /></p>
       <ul>{project.actions.map((a, idx) => <li key={idx}><DualText value={a} mode={mode} /></li>)}</ul>
-      <div className="metric-note"><strong>KPI</strong><span><DualText value={project.metrics} mode={mode} /></span></div>
+      <div className="metric-note"><strong><InlineText en="KPI" zh="指標" mode={mode} /></strong><span><DualText value={project.metrics} mode={mode} /></span></div>
     </article>
   ))}</div>;
 }
@@ -1741,14 +1760,14 @@ function ProjectsView({ section, mode }) {
 function TemplatesView({ section, mode }) {
   return (
     <div className="templates-grid">
-      <div className="table-wrap"><h4>{mode === "zh" ? "Persona 模板" : "Persona template"}</h4><table><thead><tr><th>{mode === "zh" ? "欄位" : "Field"}</th><th>{mode === "zh" ? "說明" : "Guide"}</th></tr></thead><tbody>{section.personaTemplate.map((row) => <tr key={row.field.en}><td><DualText value={row.field} mode={mode} /></td><td><DualText value={row.guide} mode={mode} /></td></tr>)}</tbody></table></div>
-      <div className="table-wrap"><h4>{mode === "zh" ? "Journey Map 模板" : "Journey map template"}</h4><table><thead><tr>{["Stage","Action","Emotion","Touchpoint","Content","Friction","Opportunity","KPI"].map((h) => <th key={h}>{h}</th>)}</tr></thead><tbody>{section.journeyRows.map((row) => <tr key={row.stage.en}><td><DualText value={row.stage} mode={mode} /></td><td><DualText value={row.action} mode={mode} /></td><td><DualText value={row.emotion} mode={mode} /></td><td><DualText value={row.touchpoint} mode={mode} /></td><td><DualText value={row.content} mode={mode} /></td><td><DualText value={row.friction} mode={mode} /></td><td><DualText value={row.opportunity} mode={mode} /></td><td><DualText value={row.kpi} mode={mode} /></td></tr>)}</tbody></table></div>
+      <div className="table-wrap"><h4><InlineText en="Persona template" zh="Persona 模板" mode={mode} /></h4><table><thead><tr><th><InlineText en="Field" zh="欄位" mode={mode} /></th><th><InlineText en="Guide" zh="說明" mode={mode} /></th></tr></thead><tbody>{section.personaTemplate.map((row) => <tr key={row.field.en}><td><DualText value={row.field} mode={mode} /></td><td><DualText value={row.guide} mode={mode} /></td></tr>)}</tbody></table></div>
+      <div className="table-wrap"><h4><InlineText en="Journey map template" zh="Journey map 模板" mode={mode} /></h4><table className="journey-template"><thead><tr>{[{en:"Stage",zh:"階段"},{en:"Action",zh:"行動"},{en:"Emotion",zh:"情緒"},{en:"Touchpoint",zh:"接觸點"},{en:"Content",zh:"內容"},{en:"Friction",zh:"阻力"},{en:"Opportunity",zh:"機會"},{en:"KPI",zh:"指標"}].map((h) => <th key={h.en}><DualText value={h} mode={mode} /></th>)}</tr></thead><tbody>{section.journeyRows.map((row) => <tr key={row.stage.en}><td><DualText value={row.stage} mode={mode} /></td><td><DualText value={row.action} mode={mode} /></td><td><DualText value={row.emotion} mode={mode} /></td><td><DualText value={row.touchpoint} mode={mode} /></td><td><DualText value={row.content} mode={mode} /></td><td><DualText value={row.friction} mode={mode} /></td><td><DualText value={row.opportunity} mode={mode} /></td><td><DualText value={row.kpi} mode={mode} /></td></tr>)}</tbody></table></div>
     </div>
   );
 }
 
 function ErrorsView({ section, mode }) {
-  return <div className="table-wrap"><table><thead><tr><th>{mode === "zh" ? "錯誤" : "Mistake"}</th><th>{mode === "zh" ? "危害" : "Why it hurts"}</th><th>{mode === "zh" ? "修正" : "Fix"}</th></tr></thead><tbody>{section.errors.map((row) => <tr key={row.mistake.en}><td><DualText value={row.mistake} mode={mode} /></td><td><DualText value={row.harm} mode={mode} /></td><td><DualText value={row.fix} mode={mode} /></td></tr>)}</tbody></table></div>;
+  return <div className="table-wrap"><table><thead><tr><th><InlineText en="Mistake" zh="錯誤" mode={mode} /></th><th><InlineText en="Why it hurts" zh="危害" mode={mode} /></th><th><InlineText en="Fix" zh="修正" mode={mode} /></th></tr></thead><tbody>{section.errors.map((row) => <tr key={row.mistake.en}><td><DualText value={row.mistake} mode={mode} /></td><td><DualText value={row.harm} mode={mode} /></td><td><DualText value={row.fix} mode={mode} /></td></tr>)}</tbody></table></div>;
 }
 
 function TimelineView({ section, mode }) {
@@ -1846,62 +1865,70 @@ body { margin: 0; }
     var(--paper);
   color: var(--ink);
   font-family: Inter, Satoshi, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  line-height: 1.55;
+  line-height: 1.52;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 .mode-zh, .mode-bi { font-family: Inter, Satoshi, "PingFang TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif; }
-.hero { max-width: 1240px; margin: 0 auto; padding: 56px 24px 28px; }
-.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 28px; align-items: stretch; }
+.hero { max-width: 1220px; margin: 0 auto; padding: 44px 22px 24px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 24px; align-items: stretch; }
 .eyebrow { margin: 0 0 10px; text-transform: uppercase; letter-spacing: .12em; color: var(--plum); font-size: 12px; font-weight: 800; }
-h1 { margin: 0; font-family: Georgia, "Times New Roman", "PingFang TC", serif; font-size: clamp(44px, 8vw, 88px); line-height: .92; color: var(--slate); letter-spacing: -.04em; }
-h2 { margin: 14px 0 0; font-family: Georgia, "Times New Roman", "PingFang TC", serif; font-size: clamp(24px, 4vw, 42px); line-height: 1.05; color: var(--plum); }
-.hero-thesis { max-width: 880px; margin: 22px 0 0; font-size: clamp(17px, 2vw, 21px); color: var(--ink); }
-.hero-card { background: rgba(255,253,247,.72); border: 1px solid var(--line); border-radius: 26px; padding: 22px; box-shadow: var(--shadow); backdrop-filter: blur(16px); }
+h1 { margin: 0; font-family: Georgia, "Times New Roman", "PingFang TC", serif; font-size: clamp(38px, 6.6vw, 74px); line-height: .96; color: var(--slate); letter-spacing: -.035em; max-width: 14ch; }
+h2 { margin: 12px 0 0; font-family: Georgia, "Times New Roman", "PingFang TC", serif; font-size: clamp(23px, 3.3vw, 36px); line-height: 1.08; color: var(--plum); max-width: 24ch; }
+.hero-thesis { max-width: 760px; margin: 18px 0 0; font-size: clamp(16px, 1.55vw, 19px); line-height: 1.55; color: var(--ink); }
+.hero-card { background: rgba(255,253,247,.76); border: 1px solid var(--line); border-radius: 24px; padding: 18px; box-shadow: var(--shadow); backdrop-filter: blur(16px); }
 .hero-card-top { display: flex; align-items: center; gap: 10px; color: var(--plum); font-weight: 800; margin-bottom: 18px; }
-.metric-row { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding: 14px 0; gap: 16px; }
-.metric-row strong { font-family: Georgia, serif; font-size: 36px; color: var(--slate); }
+.metric-row { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding: 11px 0; gap: 14px; }
+.metric-row strong { font-family: Georgia, serif; font-size: 31px; line-height: 1; color: var(--slate); }
 .metric-row span { color: var(--muted); text-align: right; }
-.control-strip { margin-top: 28px; display: flex; justify-content: space-between; gap: 18px; align-items: end; padding: 14px; border: 1px solid var(--line); background: rgba(255,253,247,.65); border-radius: 22px; }
+.control-strip { margin-top: 22px; display: flex; justify-content: space-between; gap: 14px; align-items: end; padding: 12px; border: 1px solid var(--line); background: rgba(255,253,247,.68); border-radius: 20px; }
 .search-box { display: grid; gap: 6px; flex: 1; max-width: 540px; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; }
 .search-box input { width: 100%; border: 1px solid var(--line); background: var(--paper); color: var(--ink); border-radius: 14px; padding: 12px 14px; font-size: 15px; outline: none; }
 .search-box input:focus { border-color: var(--slate); box-shadow: 0 0 0 4px rgba(46,92,110,.12); }
 .mode-pills { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
 .mode-pills button, .floating-mode { border: 1px solid var(--line); background: var(--white); color: var(--ink); border-radius: 999px; padding: 10px 14px; font-weight: 800; cursor: pointer; }
 .mode-pills button.active { background: var(--slate); color: var(--white); border-color: var(--slate); }
-.layout { max-width: 1240px; margin: 0 auto; padding: 0 24px 80px; display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 26px; align-items: start; }
-.side-nav { position: sticky; top: 18px; max-height: calc(100vh - 36px); overflow: auto; border: 1px solid var(--line); background: rgba(255,253,247,.70); border-radius: 24px; padding: 14px; box-shadow: var(--shadow); }
-.side-nav a { display: block; color: var(--muted); text-decoration: none; padding: 9px 10px; border-radius: 14px; font-size: 13px; }
+.layout { max-width: 1220px; margin: 0 auto; padding: 0 22px 76px; display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 22px; align-items: start; }
+.side-nav { position: sticky; top: 14px; max-height: calc(100vh - 28px); overflow: auto; border: 1px solid var(--line); background: rgba(255,253,247,.78); border-radius: 22px; padding: 12px; box-shadow: var(--shadow); }
+.side-nav a { display: block; color: var(--muted); text-decoration: none; padding: 7px 9px; border-radius: 12px; font-size: 12.5px; line-height: 1.28; overflow-wrap: anywhere; }
 .side-nav a:hover { background: rgba(46,92,110,.08); color: var(--slate); }
 .side-nav .nav-title { color: var(--ink); font-weight: 900; font-size: 14px; margin-bottom: 6px; }
-main { display: grid; gap: 24px; }
-.section-card { background: rgba(255,253,247,.80); border: 1px solid var(--line); border-radius: 30px; padding: clamp(20px, 3vw, 34px); box-shadow: var(--shadow); overflow: hidden; }
-.section-heading { max-width: 920px; margin-bottom: 24px; }
-.section-heading h3 { margin: 0; font-family: Georgia, "Times New Roman", "PingFang TC", serif; font-size: clamp(28px, 4vw, 48px); line-height: 1.02; color: var(--slate); letter-spacing: -.025em; }
-.section-heading p:last-child { color: var(--muted); font-size: 16px; margin: 14px 0 0; }
-.dual-text { display: inline-grid; gap: 4px; }
-.zh-line { color: var(--muted); font-size: .94em; }
-.logic-grid, .cards-grid, .legend-grid, .project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.logic-card, .mini-card, .legend-card, .project-card, .persona-core, .not-card, .process-card, .advanced-list, .framework-row, .source-map > div { border: 1px solid var(--line); background: rgba(252,250,242,.86); border-radius: 22px; padding: 18px; }
+.sticky-summary { margin: 8px 0 10px; padding: 10px; border: 1px solid rgba(98,41,84,.14); border-radius: 14px; background: rgba(98,41,84,.045); }
+.sticky-summary strong { display: block; color: var(--plum); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 7px; }
+.sticky-summary p { color: var(--muted); font-size: 12.5px; line-height: 1.42; margin: 0 0 6px; }
+.sticky-summary p:last-child { margin-bottom: 0; }
+.nav-links { display: grid; gap: 2px; }
+main { display: grid; gap: 20px; min-width: 0; }
+.section-card { background: rgba(255,253,247,.82); border: 1px solid var(--line); border-radius: 26px; padding: clamp(18px, 2.4vw, 30px); box-shadow: var(--shadow); overflow: hidden; min-width: 0; }
+.section-heading { max-width: 850px; margin-bottom: 20px; }
+.section-heading h3 { margin: 0; font-family: Georgia, "Times New Roman", "PingFang TC", serif; font-size: clamp(25px, 3.2vw, 40px); line-height: 1.08; color: var(--slate); letter-spacing: -.02em; max-width: 24ch; }
+.section-heading p:last-child { color: var(--muted); font-size: 15.5px; line-height: 1.6; margin: 11px 0 0; max-width: 78ch; }
+.dual-text { display: inline-grid; gap: 3px; max-width: 100%; }
+.zh-line { color: var(--muted); font-size: .92em; line-height: 1.45; }
+.logic-grid, .cards-grid, .legend-grid, .project-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 13px; }
+.logic-card, .mini-card, .legend-card, .project-card, .persona-core, .not-card, .process-card, .advanced-list, .framework-row, .source-map > div { border: 1px solid var(--line); background: rgba(252,250,242,.88); border-radius: 20px; padding: 15px; min-width: 0; overflow-wrap: anywhere; }
 .logic-icon { width: 48px; height: 48px; border-radius: 16px; display: grid; place-items: center; color: var(--slate); background: rgba(46,92,110,.10); margin-bottom: 14px; }
 .logic-label { margin: 0 0 6px; color: var(--plum); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; font-size: 12px; }
-h4 { margin: 0 0 8px; color: var(--ink); font-size: 18px; line-height: 1.25; }
+h4 { margin: 0 0 7px; color: var(--ink); font-size: 17px; line-height: 1.25; overflow-wrap: anywhere; }
 p { margin: 0; }
+.logic-card p, .mini-card p, .project-card p, .not-card p, .process-card p, .framework-row p, .source-map p, .timeline-item p, dd, td { overflow-wrap: anywhere; }
 .source-tag { display: inline-flex; align-items: center; width: fit-content; margin-top: 14px; padding: 5px 9px; border-radius: 999px; background: rgba(98,41,84,.10); color: var(--plum); font-size: 12px; font-weight: 900; }
-.legend-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-.legend-card p { margin-top: 10px; color: var(--muted); font-size: 14px; }
-.cx-layout { display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 18px; }
+.legend-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; }
+.legend-card p { margin-top: 9px; color: var(--muted); font-size: 13px; line-height: 1.48; }
+.cx-layout { display: grid; grid-template-columns: 330px minmax(0, 1fr); gap: 15px; }
 .venn-card { border: 1px solid var(--line); border-radius: 26px; padding: 20px; background: linear-gradient(180deg, rgba(46,92,110,.08), rgba(98,41,84,.06)); }
-.cx-circle { position: relative; width: 260px; height: 260px; border-radius: 50%; background: rgba(46,92,110,.22); margin: 0 auto 18px; display: grid; place-items: center; color: var(--slate); font-size: 38px; font-family: Georgia, serif; font-weight: 900; }
-.ux-circle { position: absolute; right: 30px; top: 86px; width: 108px; height: 108px; border-radius: 50%; background: rgba(98,41,84,.22); display: grid; place-items: center; color: var(--plum); font-size: 24px; }
+.cx-circle { position: relative; width: 230px; height: 230px; border-radius: 50%; background: rgba(46,92,110,.22); margin: 0 auto 16px; display: grid; place-items: center; color: var(--slate); font-size: 34px; font-family: Georgia, serif; font-weight: 900; }
+.ux-circle { position: absolute; right: 26px; top: 75px; width: 96px; height: 96px; border-radius: 50%; background: rgba(98,41,84,.22); display: grid; place-items: center; color: var(--plum); font-size: 22px; }
 .venn-notes { display: grid; gap: 10px; color: var(--muted); font-size: 14px; }
 .case-table { display: grid; gap: 12px; }
-.case-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; align-items: center; border: 1px solid var(--line); border-radius: 20px; padding: 16px; background: rgba(252,250,242,.72); }
+.case-row { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: center; border: 1px solid var(--line); border-radius: 18px; padding: 13px; background: rgba(252,250,242,.74); min-width: 0; }
 .case-row p { color: var(--muted); margin-top: 6px; }
 .score { padding: 8px 10px; border-radius: 999px; font-weight: 900; white-space: nowrap; }
 .score.good { background: rgba(46,92,110,.12); color: var(--slate); }
 .score.bad { background: rgba(215,84,85,.12); color: var(--beni); }
 .mini-index { color: var(--plum); font-weight: 900; margin-bottom: 18px; font-size: 13px; }
-.stage-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
-.stage-card { border: 1px solid var(--line); border-radius: 24px; padding: 18px; background: linear-gradient(180deg, rgba(255,253,247,.9), rgba(247,232,195,.34)); position: relative; }
+.stage-flow { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.stage-card { border: 1px solid var(--line); border-radius: 20px; padding: 15px; background: linear-gradient(180deg, rgba(255,253,247,.92), rgba(247,232,195,.32)); position: relative; min-width: 0; overflow-wrap: anywhere; }
 .stage-number { width: 34px; height: 34px; border-radius: 50%; background: var(--plum); color: var(--white); display: grid; place-items: center; font-weight: 900; margin-bottom: 12px; }
 .mindset { color: var(--slate); font-weight: 800; margin-bottom: 14px; }
 dl { margin: 0; display: grid; gap: 6px; }
@@ -1913,7 +1940,7 @@ dd { margin: 0 0 8px; }
 .emotion-svg path { fill: none; stroke: var(--slate); stroke-width: 5; }
 .emotion-svg circle { fill: var(--plum); }
 .emotion-svg text { fill: var(--muted); font-size: 16px; font-weight: 800; }
-.tone-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.tone-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
 .tone-grid div { border-left: 4px solid var(--slate); padding: 12px; background: rgba(46,92,110,.06); border-radius: 12px; }
 .onstage-grid { display: grid; gap: 12px; }
 .onstage-row { display: grid; grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr); gap: 12px; align-items: center; }
@@ -1921,20 +1948,21 @@ dd { margin: 0 0 8px; }
 .onstage-box span, .offstage-box span { display: block; color: var(--muted); font-size: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px; }
 .offstage-box { background: rgba(46,92,110,.08); }
 .arrow { text-align: center; color: var(--plum); font-size: 22px; font-weight: 900; }
-.persona-layout { display: grid; grid-template-columns: 320px minmax(0, 1fr); gap: 16px; }
+.persona-layout { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 14px; }
 .persona-core { background: rgba(46,92,110,.08); }
 .persona-core svg { color: var(--slate); margin-bottom: 18px; }
-.not-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.not-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .not-card strong { color: var(--plum); }
 .not-card p, .process-card p, .framework-row p, .advanced-list p, .source-map p, .project-card p, .project-card li { color: var(--muted); }
-.process-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-bottom: 16px; }
+.process-flow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-bottom: 14px; }
 .process-card span { width: 38px; height: 38px; display: grid; place-items: center; border-radius: 50%; background: var(--slate); color: var(--white); font-weight: 900; margin-bottom: 12px; }
 .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 22px; background: rgba(255,253,247,.72); }
 .table-wrap h4 { padding: 16px 16px 0; }
-table { width: 100%; border-collapse: collapse; min-width: 680px; }
-th, td { text-align: left; vertical-align: top; padding: 12px 14px; border-bottom: 1px solid var(--line); }
-th { color: var(--slate); font-size: 12px; text-transform: uppercase; letter-spacing: .06em; background: rgba(46,92,110,.07); }
-td { color: var(--ink); font-size: 14px; }
+table { width: 100%; border-collapse: collapse; min-width: 620px; }
+table.journey-template { min-width: 920px; }
+th, td { text-align: left; vertical-align: top; padding: 9px 11px; border-bottom: 1px solid var(--line); overflow-wrap: anywhere; }
+th { color: var(--slate); font-size: 11.5px; text-transform: uppercase; letter-spacing: .055em; background: rgba(46,92,110,.07); line-height: 1.3; }
+td { color: var(--ink); font-size: 13.5px; line-height: 1.45; }
 tr:last-child td { border-bottom: none; }
 .split-two, .templates-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr); gap: 16px; }
 .advanced-list { display: grid; gap: 14px; }
@@ -1947,31 +1975,43 @@ tr:last-child td { border-bottom: none; }
 .metric-note { display: grid; gap: 4px; border-top: 1px solid var(--line); padding-top: 12px; }
 .metric-note strong { color: var(--slate); }
 .timeline { position: relative; display: grid; gap: 14px; }
-.timeline-item { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 16px; align-items: start; border: 1px solid var(--line); border-radius: 18px; padding: 16px; background: rgba(255,253,247,.72); }
+.timeline-item { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 14px; align-items: start; border: 1px solid var(--line); border-radius: 16px; padding: 13px; background: rgba(255,253,247,.74); }
 .timeline-date { font-weight: 900; color: var(--plum); }
 .timeline-item p { color: var(--muted); }
 .source-map { display: grid; gap: 12px; }
-.floating-mode { position: fixed; right: 18px; bottom: 18px; z-index: 20; background: var(--plum); color: var(--white); border-color: var(--plum); box-shadow: var(--shadow); opacity: .88; }
+.floating-mode { position: fixed; right: 18px; bottom: 18px; z-index: 20; background: var(--plum); color: var(--white); border-color: var(--plum); box-shadow: var(--shadow); opacity: .84; min-width: 58px; }
 .floating-mode:hover { opacity: 1; }
 @media (max-width: 1040px) {
   .hero-grid, .layout, .cx-layout, .persona-layout, .split-two, .templates-grid { grid-template-columns: 1fr; }
-  .side-nav { position: relative; top: auto; max-height: none; display: flex; overflow-x: auto; gap: 8px; }
+  .hero-card { max-width: 560px; }
+  .side-nav { position: relative; top: auto; max-height: none; display: flex; overflow-x: auto; gap: 8px; align-items: stretch; padding: 10px; }
   .side-nav a { white-space: nowrap; }
+  .sticky-summary { min-width: 260px; margin: 0 4px 0 0; flex: 0 0 260px; }
+  .nav-links { display: flex; gap: 6px; align-items: stretch; }
   .logic-grid, .cards-grid, .legend-grid, .stage-flow, .process-flow, .tone-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 720px) {
-  .hero { padding: 34px 16px 20px; }
-  .layout { padding: 0 16px 70px; }
-  .control-strip { align-items: stretch; flex-direction: column; }
+  .hero { padding: 28px 14px 16px; }
+  h1 { max-width: 100%; font-size: clamp(34px, 12vw, 48px); }
+  h2 { max-width: 100%; font-size: clamp(22px, 7vw, 30px); }
+  .hero-thesis { margin-top: 14px; font-size: 15.5px; }
+  .hero-card { padding: 14px; border-radius: 20px; }
+  .layout { padding: 0 14px 64px; gap: 16px; }
+  .control-strip { align-items: stretch; flex-direction: column; margin-top: 18px; }
   .mode-pills { justify-content: flex-start; }
   .logic-grid, .cards-grid, .legend-grid, .stage-flow, .process-flow, .tone-grid, .not-grid, .project-grid { grid-template-columns: 1fr; }
   .case-row { grid-template-columns: 1fr; }
   .onstage-row { grid-template-columns: 1fr; }
   .arrow { transform: rotate(90deg); }
   .timeline-item { grid-template-columns: 1fr; }
-  .section-card { border-radius: 22px; }
-  .cx-circle { width: 220px; height: 220px; }
-  .ux-circle { right: 22px; top: 72px; }
+  .section-card { border-radius: 20px; padding: 16px; }
+  .section-heading { margin-bottom: 16px; }
+  .section-heading h3 { max-width: 100%; font-size: clamp(23px, 8vw, 31px); }
+  .section-heading p:last-child { font-size: 14.5px; }
+  .cx-circle { width: 190px; height: 190px; }
+  .ux-circle { width: 82px; height: 82px; right: 18px; top: 62px; }
+  .table-wrap { margin-left: -4px; margin-right: -4px; border-radius: 16px; }
+  th, td { padding: 8px 10px; }
   .floating-mode { right: 12px; bottom: 12px; padding: 9px 12px; }
 }
 @media print {
